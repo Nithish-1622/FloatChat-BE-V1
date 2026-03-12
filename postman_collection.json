@@ -1,0 +1,598 @@
+{
+  "info": {
+    "name": "ARGO Ocean Analytics API",
+    "description": "Complete API collection for the ARGO Ocean Analytics backend system. This collection includes all endpoints for natural language querying, data ingestion, and system management.",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "api_version",
+      "value": "v1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health & Status",
+      "description": "System health and status endpoints",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/{{api_version}}/health/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "{{api_version}}", "health", ""]
+            },
+            "description": "Check the overall health status of the system including database connectivity and AI service availability."
+          },
+          "response": [
+            {
+              "name": "Healthy Response",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": \"healthy\",\n  \"timestamp\": \"2024-01-15T10:30:00.000Z\",\n  \"components\": {\n    \"database\": {\n      \"status\": \"connected\",\n      \"floats\": 1250,\n      \"profiles\": 45000,\n      \"measurements\": 1500000\n    },\n    \"ai\": {\n      \"status\": \"available\",\n      \"provider\": \"groq\"\n    }\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Chat API",
+      "description": "Natural language query endpoints for ocean data analysis",
+      "item": [
+        {
+          "name": "Natural Language Query",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"What is the average temperature in the Indian Ocean?\",\n  \"context\": {},\n  \"include_data\": true,\n  \"max_rows\": 100\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/{{api_version}}/chat/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "{{api_version}}", "chat", ""]
+            },
+            "description": "Process a natural language query and return structured analytics with visualizations.\n\nParameters:\n- query: Natural language question about ocean data\n- context: Optional context from previous queries\n- include_data: Whether to include raw data in response\n- max_rows: Maximum rows to return (1-10000)"
+          },
+          "response": [
+            {
+              "name": "Successful Query",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": \"success\",\n  \"query_id\": \"a1b2c3d4\",\n  \"text_response\": \"The average temperature is 24.5°C based on 150,000 measurements.\",\n  \"numeric_summary\": {\n    \"total_records\": 150000,\n    \"columns_returned\": [\"temperature\"],\n    \"numeric_stats\": {\n      \"temperature\": {\n        \"mean\": 24.5,\n        \"std\": 3.2,\n        \"min\": 2.1,\n        \"max\": 32.4,\n        \"median\": 24.8\n      }\n    }\n  },\n  \"analytics\": {\n    \"insights\": [\n      \"The average temperature is 24.5°C\",\n      \"Analysis based on 150,000 records\"\n    ],\n    \"trends\": null,\n    \"anomalies\": null,\n    \"recommendations\": null\n  },\n  \"visualization\": {\n    \"chart_type\": \"histogram\",\n    \"title\": \"Temperature Distribution\",\n    \"x_axis\": {\"label\": \"Temperature (°C)\", \"field\": \"bin_label\"},\n    \"y_axis\": {\"label\": \"Frequency\", \"field\": \"count\"},\n    \"data\": []\n  },\n  \"data\": [],\n  \"query_info\": {\n    \"intent\": \"statistics\",\n    \"query_type\": \"statistics\",\n    \"sql_query\": \"SELECT AVG(m.temperature)...\",\n    \"execution_time_ms\": 45.2\n  },\n  \"execution_time_ms\": 123.45\n}"
+            }
+          ]
+        },
+        {
+          "name": "Query - Count Floats",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"How many floats are in the database?\",\n  \"include_data\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/{{api_version}}/chat/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "{{api_version}}", "chat", ""]
+            },
+            "description": "Count the total number of ARGO floats in the database."
+          },
+          "response": []
+        },
+        {
+          "name": "Query - Temperature Trends",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"Show me temperature trends over the last month\",\n  \"include_data\": true,\n  \"max_rows\": 500\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/{{api_version}}/chat/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "{{api_version}}", "chat", ""]
+            },
+            "description": "Get time series analysis of temperature data."
+          },
+          "response": []
+        },
+        {
+          "name": "Query - Depth Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"Show temperature profile by depth\",\n  \"include_data\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/{{api_version}}/chat/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "{{api_version}}", "chat", ""]
+            },
+            "description": "Get vertical temperature profile showing how temperature changes with depth."
+          },
+          "response": []
+        },
+        {
+          "name": "Query - Geographic Distribution",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"Map of temperature distribution in the Indian Ocean\",\n  \"include_data\": true,\n  \"max_rows\": 1000\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/{{api_version}}/chat/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "{{api_version}}", "chat", ""]
+            },
+            "description": "Get geographic distribution of temperature for map visualization."
+          },
+          "response": []
+        },
+        {
+          "name": "Query - Statistics",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"Show me statistics for salinity data\",\n  \"include_data\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/{{api_version}}/chat/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "{{api_version}}", "chat", ""]
+            },
+            "description": "Get statistical summary of salinity measurements."
+          },
+          "response": []
+        },
+        {
+          "name": "Query - Specific Float",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"Show data from float 2901234\",\n  \"include_data\": true,\n  \"max_rows\": 200\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/{{api_version}}/chat/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "{{api_version}}", "chat", ""]
+            },
+            "description": "Get data for a specific ARGO float by platform number."
+          },
+          "response": []
+        },
+        {
+          "name": "Query - Extreme Values",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"What is the maximum temperature recorded?\",\n  \"include_data\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/{{api_version}}/chat/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "{{api_version}}", "chat", ""]
+            },
+            "description": "Find extreme temperature values in the dataset."
+          },
+          "response": []
+        },
+        {
+          "name": "SQL Preview",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"Show me temperature data from January 2024\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/{{api_version}}/chat/sql-preview/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "{{api_version}}", "chat", "sql-preview", ""]
+            },
+            "description": "Preview the SQL query that would be generated for a natural language query without executing it."
+          },
+          "response": [
+            {
+              "name": "SQL Preview Response",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"sql\": \"SELECT m.temperature, m.salinity, m.pressure, p.latitude, p.longitude, p.profile_time FROM measurements m JOIN profiles p ON m.profile_id = p.id WHERE p.profile_time >= '2024-01-01' AND p.profile_time < '2024-02-01' LIMIT 1000\",\n  \"method\": \"rule_based\",\n  \"intent\": {\n    \"primary_intent\": \"list\",\n    \"query_type\": \"data\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Database Schema",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/{{api_version}}/chat/schema/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "{{api_version}}", "chat", "schema", ""]
+            },
+            "description": "Get information about the database schema including table structures and relationships."
+          },
+          "response": [
+            {
+              "name": "Schema Response",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"schema\": \"Tables: floats, profiles, measurements...\",\n  \"tables\": [\n    {\n      \"name\": \"floats\",\n      \"description\": \"ARGO float devices\",\n      \"columns\": [\"id\", \"platform_number\", \"first_seen\", \"last_seen\"]\n    },\n    {\n      \"name\": \"profiles\",\n      \"description\": \"Measurement profiles at specific times/locations\",\n      \"columns\": [\"id\", \"float_id\", \"latitude\", \"longitude\", \"profile_time\"]\n    },\n    {\n      \"name\": \"measurements\",\n      \"description\": \"Individual measurements\",\n      \"columns\": [\"id\", \"profile_id\", \"pressure\", \"temperature\", \"salinity\"]\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Sample Queries",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/{{api_version}}/chat/samples/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "{{api_version}}", "chat", "samples", ""]
+            },
+            "description": "Get a list of sample queries organized by category to help users get started."
+          },
+          "response": [
+            {
+              "name": "Sample Queries Response",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"samples\": [\n    {\n      \"category\": \"Basic Queries\",\n      \"queries\": [\n        \"How many floats are in the database?\",\n        \"Show me the latest temperature data\",\n        \"What is the average salinity?\"\n      ]\n    },\n    {\n      \"category\": \"Time-based Analysis\",\n      \"queries\": [\n        \"Show temperature trends over the last month\",\n        \"What was the average temperature in 2023?\",\n        \"Monthly temperature variations\"\n      ]\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Conversation Context",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/{{api_version}}/chat/context/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "{{api_version}}", "chat", "context", ""]
+            },
+            "description": "Get the current conversation context including last query and entities."
+          },
+          "response": [
+            {
+              "name": "Context Response",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"context\": {\n    \"last_query\": \"What is the average temperature?\",\n    \"last_intent\": \"average\",\n    \"last_entities\": {\n      \"variable\": \"temperature\"\n    },\n    \"session_start\": \"2024-01-15T10:00:00.000Z\",\n    \"query_count\": 5\n  },\n  \"status\": \"active\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Reset Conversation Context",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/{{api_version}}/chat/context/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "{{api_version}}", "chat", "context", ""]
+            },
+            "description": "Reset the conversation context to start a fresh session."
+          },
+          "response": [
+            {
+              "name": "Context Reset Response",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": \"reset\",\n  \"message\": \"Conversation context has been reset\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Submit Feedback",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query_id\": \"a1b2c3d4\",\n  \"rating\": 5,\n  \"feedback_text\": \"Very accurate response!\",\n  \"correct_response\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/{{api_version}}/chat/feedback/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "{{api_version}}", "chat", "feedback", ""]
+            },
+            "description": "Submit feedback for a query response to help improve the system.\n\nParameters:\n- query_id: ID of the query being rated\n- rating: 1-5 rating\n- feedback_text: Optional feedback text\n- correct_response: What the correct response should have been"
+          },
+          "response": [
+            {
+              "name": "Feedback Submitted",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": \"received\",\n  \"message\": \"Thank you for your feedback\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Data Ingestion",
+      "description": "NetCDF data ingestion and management endpoints",
+      "item": [
+        {
+          "name": "Ingestion Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/{{api_version}}/ingestion/status/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "{{api_version}}", "ingestion", "status", ""]
+            },
+            "description": "Check the status of the ingestion service and database connection."
+          },
+          "response": [
+            {
+              "name": "Ingestion Status Response",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": \"operational\",\n  \"database_connected\": true,\n  \"statistics\": {\n    \"total_floats\": 1250,\n    \"total_profiles\": 45000,\n    \"total_measurements\": 1500000,\n    \"processed_files\": 125,\n    \"failed_files\": 2\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Ingest File from URL",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"source\": \"https://data.argo.ucsd.edu/pub/argo/dac/aoml/1900001/1900001_prof.nc\",\n  \"is_url\": true,\n  \"is_directory\": false,\n  \"force\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/{{api_version}}/ingestion/ingest/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "{{api_version}}", "ingestion", "ingest", ""]
+            },
+            "description": "Trigger ingestion of a NetCDF file from a URL.\n\nParameters:\n- source: URL of the NetCDF file\n- is_url: true for URL sources\n- is_directory: false for single files\n- force: true to reprocess already processed files"
+          },
+          "response": [
+            {
+              "name": "Ingestion Success",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": \"success\",\n  \"result\": {\n    \"type\": \"file\",\n    \"source\": \"https://example.com/argo_data.nc\",\n    \"result\": {\n      \"file_path\": \"https://example.com/argo_data.nc\",\n      \"status\": \"success\",\n      \"records_inserted\": 15000,\n      \"profiles_created\": 500,\n      \"floats_created\": 25,\n      \"error\": null\n    },\n    \"stats\": {\n      \"total_floats\": 1275,\n      \"total_profiles\": 45500,\n      \"total_measurements\": 1515000,\n      \"processed_files\": 126,\n      \"failed_files\": 2\n    }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Ingest Local File",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"source\": \"/path/to/local/argo_data.nc\",\n  \"is_url\": false,\n  \"is_directory\": false,\n  \"force\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/{{api_version}}/ingestion/ingest/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "{{api_version}}", "ingestion", "ingest", ""]
+            },
+            "description": "Trigger ingestion of a local NetCDF file."
+          },
+          "response": []
+        },
+        {
+          "name": "Ingest Directory",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"source\": \"/path/to/data/directory/\",\n  \"is_url\": false,\n  \"is_directory\": true,\n  \"force\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/{{api_version}}/ingestion/ingest/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "{{api_version}}", "ingestion", "ingest", ""]
+            },
+            "description": "Trigger ingestion of all NetCDF files in a directory."
+          },
+          "response": [
+            {
+              "name": "Directory Ingestion Response",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": \"success\",\n  \"result\": {\n    \"type\": \"directory\",\n    \"source\": \"/path/to/data/\",\n    \"files_processed\": 10,\n    \"results\": [\n      {\"file_path\": \"file1.nc\", \"status\": \"success\", \"records_inserted\": 5000},\n      {\"file_path\": \"file2.nc\", \"status\": \"success\", \"records_inserted\": 3500}\n    ],\n    \"stats\": {\n      \"total_floats\": 1300,\n      \"total_profiles\": 50000,\n      \"total_measurements\": 1600000\n    }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Force Re-ingest",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"source\": \"/path/to/argo_data.nc\",\n  \"is_url\": false,\n  \"is_directory\": false,\n  \"force\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/{{api_version}}/ingestion/ingest/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "{{api_version}}", "ingestion", "ingest", ""]
+            },
+            "description": "Force re-ingestion of a file that was already processed."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Database Statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/{{api_version}}/ingestion/stats/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "{{api_version}}", "ingestion", "stats", ""]
+            },
+            "description": "Get detailed database statistics including counts of floats, profiles, and measurements."
+          },
+          "response": [
+            {
+              "name": "Statistics Response",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": \"success\",\n  \"statistics\": {\n    \"total_floats\": 1250,\n    \"total_profiles\": 45000,\n    \"total_measurements\": 1500000,\n    \"processed_files\": 125,\n    \"failed_files\": 2\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "List Processed Files",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/{{api_version}}/ingestion/processed-files/?page=1&page_size=50",
+              "host": ["{{base_url}}"],
+              "path": ["api", "{{api_version}}", "ingestion", "processed-files", ""],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (default: 1)"
+                },
+                {
+                  "key": "page_size",
+                  "value": "50",
+                  "description": "Items per page (default: 50)"
+                }
+              ]
+            },
+            "description": "Get a paginated list of all processed files."
+          },
+          "response": [
+            {
+              "name": "Processed Files Response",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": \"success\",\n  \"total_count\": 125,\n  \"page\": 1,\n  \"page_size\": 50,\n  \"files\": [\n    {\n      \"id\": 1,\n      \"file_path\": \"https://example.com/argo_001.nc\",\n      \"file_name\": \"argo_001.nc\",\n      \"processed_at\": \"2024-01-15T10:30:00.000Z\",\n      \"records_inserted\": 15000,\n      \"status\": \"success\",\n      \"error_message\": null\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "List Failed Files",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/{{api_version}}/ingestion/processed-files/?status=failed",
+              "host": ["{{base_url}}"],
+              "path": ["api", "{{api_version}}", "ingestion", "processed-files", ""],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "failed",
+                  "description": "Filter by status (success, failed, partial)"
+                }
+              ]
+            },
+            "description": "Get a list of files that failed to process."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
