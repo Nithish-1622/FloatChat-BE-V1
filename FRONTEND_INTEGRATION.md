@@ -68,6 +68,7 @@ Process natural language queries about ocean data.
 ```json
 {
   "query": "What is the average temperature in the Indian Ocean?",
+  "session_id": "c95f6d39-7b2b-4c74-a5e4-591f5a6e4f6e",
   "context": {},
   "include_data": true,
   "max_rows": 100
@@ -77,6 +78,7 @@ Process natural language queries about ocean data.
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
 | `query` | string | Yes | - | Natural language query (max 5000 chars) |
+| `session_id` | string | No | auto-generated | Existing chat session ID to append messages |
 | `context` | object | No | `{}` | Context from previous queries |
 | `include_data` | boolean | No | `true` | Include raw data in response |
 | `max_rows` | integer | No | `100` | Max rows to return (1-10000) |
@@ -86,6 +88,7 @@ Process natural language queries about ocean data.
 {
   "status": "success",
   "query_id": "a1b2c3d4",
+  "session_id": "c95f6d39-7b2b-4c74-a5e4-591f5a6e4f6e",
   "text_response": "The average temperature in the Indian Ocean is 18.5°C based on 13,410 measurements across 20 floats.",
   "numeric_summary": {
     "total_records": 13410,
@@ -150,6 +153,106 @@ Process natural language queries about ocean data.
   },
   "execution_time_ms": 245.67,
   "error": null
+}
+```
+
+---
+
+### 3. Chat Sessions (MongoDB)
+
+Create/list chat sessions for persistent conversation history.
+
+**Endpoint:** `GET /api/v1/chat/sessions/`
+
+**Response:**
+```json
+{
+  "status": "success",
+  "sessions": [
+    {
+      "session_id": "c95f6d39-7b2b-4c74-a5e4-591f5a6e4f6e",
+      "title": "What was the average temperature in 2023?",
+      "pinned": false,
+      "created_at": "2026-04-09T08:31:12.000000+00:00",
+      "updated_at": "2026-04-09T08:33:50.000000+00:00",
+      "last_message_preview": "The average temperature in 2023 is...",
+      "message_count": 6
+    }
+  ]
+}
+```
+
+**Endpoint:** `POST /api/v1/chat/sessions/`
+
+**Request Body:**
+```json
+{
+  "title": "New Ocean Analysis"
+}
+```
+
+**Response:**
+```json
+{
+  "status": "success",
+  "session_id": "c95f6d39-7b2b-4c74-a5e4-591f5a6e4f6e",
+  "title": "New Ocean Analysis"
+}
+```
+
+---
+
+### 4. Session Message History
+
+Fetch ordered messages for one chat session.
+
+**Endpoint:** `GET /api/v1/chat/sessions/{session_id}/messages/`
+
+**Response:**
+```json
+{
+  "status": "success",
+  "session_id": "c95f6d39-7b2b-4c74-a5e4-591f5a6e4f6e",
+  "messages": [
+    {
+      "role": "user",
+      "content": "What was the average temperature in 2023?",
+      "created_at": "2026-04-09T08:31:12.000000+00:00",
+      "query_id": "a1b2c3d4"
+    },
+    {
+      "role": "assistant",
+      "content": "The average temperature in 2023 is ...",
+      "created_at": "2026-04-09T08:31:13.000000+00:00",
+      "query_id": "a1b2c3d4"
+    }
+  ]
+}
+```
+
+---
+
+### 5. Delete Session
+
+Delete one session and all its persisted messages.
+
+**Endpoint:** `DELETE /api/v1/chat/sessions/{session_id}/`
+
+**Success Response (200):**
+```json
+{
+  "status": "success",
+  "session_id": "c95f6d39-7b2b-4c74-a5e4-591f5a6e4f6e",
+  "messages_deleted": 12
+}
+```
+
+**Not Found (404):**
+```json
+{
+  "status": "error",
+  "session_id": "c95f6d39-7b2b-4c74-a5e4-591f5a6e4f6e",
+  "error": "Session not found"
 }
 ```
 
